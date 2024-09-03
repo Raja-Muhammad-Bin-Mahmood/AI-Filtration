@@ -17,7 +17,7 @@ st.markdown(
     <style>
     /* General styling */
     .stApp {
-        background-color: #f0f2f6;
+        background-color: #e0f7fa;
         color: #333333;
         font-family: 'Arial', sans-serif;
     }
@@ -26,9 +26,10 @@ st.markdown(
     .content {
         padding: 20px;
         background-color: #ffffff;
-        border-radius: 10px;
+        border-radius: 15px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         margin-bottom: 20px;
+        border: 2px solid #007BFF;
     }
 
     /* Label styling */
@@ -47,15 +48,26 @@ st.markdown(
 
     /* Maintenance bar */
     .maintenance-bar {
-        padding: 10px;
-        background-color: #ff3333;
+        padding: 15px;
+        background-color: #007BFF;
         text-align: center;
         font-weight: bold;
         font-size: 1rem;
         color: white;
-        border-radius: 5px;
+        border-radius: 25px;
         margin-top: 20px;
     }
+
+    /* Reverse osmosis section */
+    .ro-section {
+        padding: 15px;
+        background-color: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin-top: 20px;
+        border: 2px solid #007BFF;
+    }
+
     </style>
     """,
     unsafe_allow_html=True,
@@ -69,9 +81,14 @@ url = f"http://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid
 
 # Function to fetch weather data
 def fetch_weather_data():
-    response = requests.get(url)
-    data = response.json()
-    return data
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        data = response.json()
+        return data
+    except requests.RequestException as e:
+        st.error(f"Error fetching weather data: {e}")
+        return {}
 
 # Define the predictive model
 def predict_water_usage(temp):
@@ -128,7 +145,20 @@ def update_data():
 
         # Maintenance bar
         if maintenance_due:
-            st.markdown("<div class='maintenance-bar'>Maintenance is due for the filtration system.</div>", unsafe_allow_html=True)
+            st.markdown(f"<div class='maintenance-bar'>Maintenance is required. It's been {days_since_last_maintenance} days since the last maintenance.</div>", unsafe_allow_html=True)
+
+        # Reverse osmosis status (dummy example)
+        ro_status = {
+            "membrane_life": f"{random.uniform(50, 100):.1f}%",
+            "flow_rate": f"{random.uniform(10, 20):.1f} L/min",
+            "pressure": f"{random.uniform(50, 100):.1f} bar"
+        }
+
+        st.markdown("<div class='ro-section'>", unsafe_allow_html=True)
+        st.markdown(f"<div class='label'>RO Membrane Life:</div> <div class='value'>{ro_status['membrane_life']}</div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='label'>Flow Rate:</div> <div class='value'>{ro_status['flow_rate']}</div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='label'>Pressure:</div> <div class='value'>{ro_status['pressure']}</div>", unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
 
     else:
         st.error("Error fetching weather data.")
