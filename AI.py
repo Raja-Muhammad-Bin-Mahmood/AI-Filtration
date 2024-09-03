@@ -1,9 +1,24 @@
+import subprocess
+import sys
+
+# Function to install required packages
+def install_packages():
+    required_packages = [
+        'streamlit',
+        'requests',
+        'numpy'
+    ]
+    for package in required_packages:
+        subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+
+# Install packages
+install_packages()
+
 import streamlit as st
 import requests
 import datetime
 import time
 import numpy as np
-from sklearn.linear_model import LinearRegression
 
 # OpenWeatherMap API configuration
 api_key = "ec5dff3620be8d025f51f648826a4ada"  # Replace with your actual OpenWeatherMap API key
@@ -13,11 +28,17 @@ url = f"http://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid
 
 # Define the predictive model
 def predict_water_usage(temp):
-    # Placeholder for actual model
-    X = np.array([[25], [30], [35], [40], [45]])
-    y = np.array([1000, 1500, 2000, 2500, 3000])
-    model = LinearRegression().fit(X, y)
-    return model.predict(np.array([[temp]]))[0]
+    # Simplified model for demonstration
+    if temp < 25:
+        return 1000
+    elif temp < 30:
+        return 1500
+    elif temp < 35:
+        return 2000
+    elif temp < 40:
+        return 2500
+    else:
+        return 3000
 
 # Define filtration adjustment
 def adjust_filtration(usage):
@@ -75,53 +96,60 @@ st.markdown("""
 # Function to update and display data
 def update_data():
     while True:
-        # Fetch weather data
-        response = requests.get(url)
-        data = response.json()
+        try:
+            # Fetch weather data
+            response = requests.get(url)
+            data = response.json()
 
-        # Extract data
-        if 'main' in data:
-            current_temp = data['main']['temp']
-            feels_like = data['main']['feels_like']
-            min_temp = data['main']['temp_min']
-            max_temp = data['main']['temp_max']
-            humidity = data['main']['humidity']
+            # Extract data
+            if 'main' in data:
+                current_temp = data['main']['temp']
+                feels_like = data['main']['feels_like']
+                min_temp = data['main']['temp_min']
+                max_temp = data['main']['temp_max']
+                humidity = data['main']['humidity']
+                
+                # Predict water usage
+                predicted_usage = predict_water_usage(current_temp)
+                
+                # Adjust filtration
+                filtration_adjustment = adjust_filtration(predicted_usage)
+                
+                # Resource management
+                chemicals, energy = resource_management(filtration_adjustment)
+
+                # Get current date and time
+                now = datetime.datetime.now()
+                current_date = now.strftime("%Y-%m-%d")
+                current_time = now.strftime("%H:%M:%S")
+
+                # Display data
+                st.write(f"Current Date: {current_date}")
+                st.write(f"Current Time: {current_time}")
+                st.write(f"Temperature: {current_temp}°C")
+                st.write(f"Feels Like: {feels_like}°C")
+                st.write(f"Minimum Temperature: {min_temp}°C")
+                st.write(f"Maximum Temperature: {max_temp}°C")
+                st.write(f"Humidity: {humidity}%")
+                st.write(f"Predicted Water Usage: {predicted_usage:.2f} liters")
+                st.write(f"Filtration Adjustment Needed: {filtration_adjustment:.2f}")
+                st.write(f"Chemicals Needed: {chemicals:.2f}")
+                st.write(f"Energy Needed: {energy:.2f}")
+
+                # Maintenance prediction
+                days_since_last_maintenance = (now - datetime.datetime(2024, 1, 1)).days
+                maintenance_due = days_since_last_maintenance > 30
+
+                if maintenance_due:
+                    st.warning("Maintenance is due for the filtration system.")
+                else:
+                    st.success("No maintenance needed at the moment.")
             
-            # Predict water usage
-            predicted_usage = predict_water_usage(current_temp)
-            
-            # Adjust filtration
-            filtration_adjustment = adjust_filtration(predicted_usage)
-            
-            # Resource management
-            chemicals, energy = resource_management(filtration_adjustment)
-
-            # Get current date and time
-            now = datetime.datetime.now()
-            current_date = now.strftime("%Y-%m-%d")
-            current_time = now.strftime("%H:%M:%S")
-
-            # Display data
-            st.write(f"Current Date: {current_date}")
-            st.write(f"Current Time: {current_time}")
-            st.write(f"Temperature: {current_temp}°C")
-            st.write(f"Feels Like: {feels_like}°C")
-            st.write(f"Minimum Temperature: {min_temp}°C")
-            st.write(f"Maximum Temperature: {max_temp}°C")
-            st.write(f"Humidity: {humidity}%")
-            st.write(f"Predicted Water Usage: {predicted_usage:.2f} liters")
-            st.write(f"Filtration Adjustment Needed: {filtration_adjustment:.2f}")
-            st.write(f"Chemicals Needed: {chemicals:.2f}")
-            st.write(f"Energy Needed: {energy:.2f}")
-
-            # Maintenance prediction
-            days_since_last_maintenance = (now - datetime.datetime(2024, 1, 1)).days
-            maintenance_due = days_since_last_maintenance > 30
-
-            if maintenance_due:
-                st.warning("Maintenance is due for the filtration system.")
             else:
-                st.success("No maintenance needed at the moment.")
+                st.error("Error fetching weather data.")
+            
+        except Exception as e:
+            st.error(f"An error occurred: {e}")
         
         # Pause before updating again
         time.sleep(60)  # Update every 60 seconds
