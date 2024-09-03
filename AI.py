@@ -28,16 +28,9 @@ url = f"http://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid
 
 # Define the predictive model
 def predict_water_usage(temp):
-    if temp < 25:
-        return 1000
-    elif temp < 30:
-        return 1500
-    elif temp < 35:
-        return 2000
-    elif temp < 40:
-        return 2500
-    else:
-        return 3000
+    base_usage = 800 + (temp * random.uniform(10, 20))
+    noise = random.uniform(-50, 50)  # Add some noise for more randomness
+    return base_usage + noise
 
 # Define filtration adjustment
 def adjust_filtration(usage):
@@ -47,20 +40,20 @@ def adjust_filtration(usage):
 
 # Define resource management
 def resource_management(adjustment):
-    chemicals_used = 100 + adjustment * 10
-    energy_used = 50 + adjustment * 5
+    chemicals_used = 100 + adjustment * random.uniform(8, 12)
+    energy_used = 50 + adjustment * random.uniform(3, 7)
     return chemicals_used, energy_used
 
 # Streamlit app
-st.set_page_config(page_title="Water Filtration Dashboard", page_icon=":droplet:", layout="wide")
+st.set_page_config(page_title="AI Water Filtration Dashboard", page_icon=":droplet:", layout="wide")
 
-st.title("Water Filtration Dashboard")
+st.title("AI Water Filtration Dashboard")
 
 # Background animation CSS
 st.markdown("""
     <style>
         .stApp {
-            background: linear-gradient(135deg, #000000, #003300);
+            background: linear-gradient(135deg, #1e1e2f, #3e3e5b);
             color: #00ff00;
             overflow: hidden;
         }
@@ -78,7 +71,7 @@ st.markdown("""
             left: 0;
             width: 100%;
             height: 100%;
-            background-image: url('https://www.example.com/your-wallpaper.jpg'); /* Replace with your wallpaper URL */
+            background-image: url('https://source.unsplash.com/random/1920x1080/?water,technology');
             background-size: cover;
             animation: moveBackground 30s linear infinite;
             z-index: -1;
@@ -88,13 +81,13 @@ st.markdown("""
             100% { background-position: 100% 100%; }
         }
         .stMarkdown {
-            font-family: 'Arial', sans-serif;
+            font-family: 'Montserrat', sans-serif;
         }
         .stDataFrame {
             border: 2px solid #00ff00;
             border-radius: 8px;
             padding: 10px;
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: rgba(30, 30, 47, 0.8);
         }
     </style>
     <div class="animated-background"></div>
