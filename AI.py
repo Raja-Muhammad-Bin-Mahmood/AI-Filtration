@@ -10,19 +10,19 @@ lat = 32.6970
 lon = 73.3252
 url = f"http://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={api_key}&units=metric"
 
-# Define the predictive model
+# Predictive model function
 def predict_water_usage(temp):
     base_usage = 800 + (temp * random.uniform(10, 20))
     noise = random.uniform(-20, 20)  # Smaller noise for smoother transitions
     return base_usage + noise
 
-# Define filtration adjustment
+# Filtration adjustment function
 def adjust_filtration(usage):
     base_capacity = 1000
     adjustment = (usage - base_capacity) / 1000
     return adjustment
 
-# Define resource management
+# Resource management function
 def resource_management(adjustment):
     chemicals_used = 100 + adjustment * random.uniform(8, 12)
     energy_used = 50 + adjustment * random.uniform(3, 7)
@@ -34,9 +34,9 @@ st.set_page_config(page_title="AI Water Filtration Dashboard", page_icon=":dropl
 # Custom CSS for the design and dropdown menu
 st.markdown("""
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@300;400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
         body {
-            font-family: 'Roboto Condensed', sans-serif;
+            font-family: 'Montserrat', sans-serif;
         }
         .stApp {
             background: #1e1e1e;
@@ -47,71 +47,59 @@ st.markdown("""
             color: #ffffff;
             font-size: 3em;
             font-weight: bold;
-            font-family: 'Roboto Condensed', sans-serif;
+            font-family: 'Montserrat', sans-serif;
         }
         .stHeader {
             font-size: 1.5em;
             color: #ffffff;
-            font-family: 'Roboto Condensed', sans-serif;
-        }
-        .stMetric {
-            font-size: 1.2em;
-            margin: 10px 0;
-            font-family: 'Roboto Condensed', sans-serif;
-        }
-        .data-container {
-            padding: 20px;
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.1);
-            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
-        }
-        .card {
-            background: rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+            font-family: 'Montserrat', sans-serif;
         }
         .dropdown {
             position: relative;
             display: inline-block;
+            margin: 20px;
+            padding: 20px;
+            background-color: #333;
+            border-radius: 10px;
+            cursor: pointer;
         }
         .dropdown-content {
             display: none;
             position: absolute;
-            background-color: #333;
-            min-width: 160px;
+            background-color: #444;
+            min-width: 200px;
             box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            padding: 20px;
             z-index: 1;
-        }
-        .dropdown-content a {
-            color: white;
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-        }
-        .dropdown-content a:hover {
-            background-color: #575757;
+            border-radius: 10px;
+            transition: opacity 0.3s ease-in-out;
+            opacity: 0;
         }
         .dropdown:hover .dropdown-content {
             display: block;
+            opacity: 1;
         }
-        .dropdown:hover .dropbtn {
+        .dropdown:hover {
             background-color: #555;
         }
-        .maintenance-indicator {
-            width: 100px;
-            height: 100px;
-            background-color: #ff4757;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1em;
-            color: white;
-            font-weight: bold;
+        .maintenance-bar {
+            width: 100%;
+            height: 30px;
+            background-color: #444;
+            border-radius: 15px;
+            margin-top: 20px;
+            overflow: hidden;
+            position: relative;
         }
-        .maintenance-ok {
+        .maintenance-fill {
+            width: 0;
+            height: 100%;
+            background-color: #ff4757;
+            border-radius: 15px;
+            transition: width 1s ease-in-out;
+            position: absolute;
+        }
+        .maintenance-ok .maintenance-fill {
             background-color: #2ecc71;
         }
     </style>
@@ -119,13 +107,22 @@ st.markdown("""
 
 st.title("AI Water Filtration Dashboard")
 
-# Dropdown menu
+# Dropdown menu with hover effect
 st.markdown("""
     <div class="dropdown">
-        <span class="stHeader dropbtn">Options</span>
+        <span class="stHeader">Temperature</span>
         <div class="dropdown-content">
-            <a href="#temperature">Temperature</a>
-            <a href="#logistics">Logistics</a>
+            <p>Current Temperature: Hover to see details</p>
+            <p>Feels Like: Hover to see details</p>
+            <p>Humidity: Hover to see details</p>
+        </div>
+    </div>
+    <div class="dropdown">
+        <span class="stHeader">Logistics</span>
+        <div class="dropdown-content">
+            <p>Predicted Water Usage: Hover to see details</p>
+            <p>Filtration Adjustment Needed: Hover to see details</p>
+            <p>Chemicals and Energy: Hover to see details</p>
         </div>
     </div>
 """, unsafe_allow_html=True)
@@ -167,6 +164,7 @@ def update_data():
                 maintenance_due = days_since_last_maintenance > 30
                 maintenance_status = "Maintenance Due" if maintenance_due else "System OK"
                 maintenance_class = "maintenance-ok" if not maintenance_due else ""
+                maintenance_fill_width = "100%" if maintenance_due else f"{(days_since_last_maintenance / 30) * 100}%"
 
                 # Update the display every second
                 data_placeholder.markdown(
@@ -176,21 +174,8 @@ def update_data():
                             <div class="stHeader">Current Date: {current_date}</div>
                             <div class="stHeader">Current Time: {current_time}</div>
                         </div>
-                        <div class="card" id="temperature">
-                            <div class="stMetric">Temperature: {current_temp:.1f}°C</div>
-                            <div class="stMetric">Feels Like: {feels_like:.1f}°C</div>
-                            <div class="stMetric">Minimum Temperature: {min_temp:.1f}°C</div>
-                            <div class="stMetric">Maximum Temperature: {max_temp:.1f}°C</div>
-                            <div class="stMetric">Humidity: {humidity:.1f}%</div>
-                        </div>
-                        <div class="card" id="logistics">
-                            <div class="stMetric">Predicted Water Usage: {predicted_usage:.2f} liters</div>
-                            <div class="stMetric">Filtration Adjustment Needed: {filtration_adjustment:.2f}</div>
-                            <div class="stMetric">Chemicals Needed: {chemicals:.2f} units</div>
-                            <div class="stMetric">Energy Needed: {energy:.2f} kWh</div>
-                        </div>
-                        <div class="card">
-                            <div class="maintenance-indicator {maintenance_class}">{maintenance_status}</div>
+                        <div class="maintenance-bar {maintenance_class}">
+                            <div class="maintenance-fill" style="width: {maintenance_fill_width};"></div>
                         </div>
                     </div>
                     """, unsafe_allow_html=True
