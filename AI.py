@@ -1,24 +1,8 @@
-import subprocess
-import sys
 import streamlit as st
 import requests
 import datetime
 import time
-import numpy as np
 import random
-
-# Function to install required packages
-def install_packages():
-    required_packages = [
-        'streamlit',
-        'requests',
-        'numpy'
-    ]
-    for package in required_packages:
-        subprocess.check_call([sys.executable, "-m", "pip", "install", package])
-
-# Install packages
-install_packages()
 
 # OpenWeatherMap API configuration
 api_key = "ec5dff3620be8d025f51f648826a4ada"
@@ -29,7 +13,7 @@ url = f"http://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid
 # Define the predictive model
 def predict_water_usage(temp):
     base_usage = 800 + (temp * random.uniform(10, 20))
-    noise = random.uniform(-50, 50)  # Add some noise for more randomness
+    noise = random.uniform(-20, 20)  # Smaller noise for smoother transitions
     return base_usage + noise
 
 # Define filtration adjustment
@@ -44,57 +28,52 @@ def resource_management(adjustment):
     energy_used = 50 + adjustment * random.uniform(3, 7)
     return chemicals_used, energy_used
 
-# Streamlit app
+# Streamlit app configuration
 st.set_page_config(page_title="AI Water Filtration Dashboard", page_icon=":droplet:", layout="wide")
 
-st.title("AI Water Filtration Dashboard")
-
-# Background animation CSS
+# Custom CSS for the design
 st.markdown("""
     <style>
         .stApp {
-            background: linear-gradient(135deg, #1e1e2f, #3e3e5b);
-            color: #00ff00;
+            background: linear-gradient(135deg, #1f005c, #5b0060, #870160, #ac255e, #ca485c, #e16b5c, #f39060, #ffb56b);
+            color: #ffffff;
             overflow: hidden;
         }
         .stTitle {
-            color: #00ff00;
-            font-size: 2.5em;
+            color: #ffffff;
+            font-size: 3em;
+            font-weight: bold;
         }
-        .stButton {
-            color: #000000;
-            background-color: #00ff00;
+        .stHeader {
+            font-size: 1.5em;
+            color: #ffffff;
         }
-        .animated-background {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: url('https://source.unsplash.com/random/1920x1080/?water,technology');
-            background-size: cover;
-            animation: moveBackground 30s linear infinite;
-            z-index: -1;
+        .stMetric {
+            font-size: 1.2em;
+            margin: 10px 0;
         }
-        @keyframes moveBackground {
-            0% { background-position: 0% 0%; }
-            100% { background-position: 100% 100%; }
+        .data-container {
+            padding: 20px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
         }
-        .stMarkdown {
-            font-family: 'Montserrat', sans-serif;
-        }
-        .stDataFrame {
-            border: 2px solid #00ff00;
+        .card {
+            background: rgba(0, 0, 0, 0.1);
+            padding: 20px;
             border-radius: 8px;
-            padding: 10px;
-            background-color: rgba(30, 30, 47, 0.8);
+            margin-bottom: 20px;
+            box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
         }
     </style>
-    <div class="animated-background"></div>
 """, unsafe_allow_html=True)
+
+st.title("AI Water Filtration Dashboard")
 
 # Function to update and display data
 def update_data():
+    data_placeholder = st.empty()
+    
     while True:
         try:
             # Fetch weather data
@@ -123,18 +102,30 @@ def update_data():
                 current_date = now.strftime("%Y-%m-%d")
                 current_time = now.strftime("%H:%M:%S")
 
-                # Display data
-                st.markdown(f"### Current Date: {current_date}")
-                st.markdown(f"### Current Time: {current_time}")
-                st.markdown(f"**Temperature:** {current_temp:.1f}°C")
-                st.markdown(f"**Feels Like:** {feels_like:.1f}°C")
-                st.markdown(f"**Minimum Temperature:** {min_temp:.1f}°C")
-                st.markdown(f"**Maximum Temperature:** {max_temp:.1f}°C")
-                st.markdown(f"**Humidity:** {humidity:.1f}%")
-                st.markdown(f"**Predicted Water Usage:** {predicted_usage:.2f} liters")
-                st.markdown(f"**Filtration Adjustment Needed:** {filtration_adjustment:.2f}")
-                st.markdown(f"**Chemicals Needed:** {chemicals:.2f} units")
-                st.markdown(f"**Energy Needed:** {energy:.2f} kWh")
+                # Update the display every second
+                data_placeholder.markdown(
+                    f"""
+                    <div class="data-container">
+                        <div class="card">
+                            <div class="stHeader">Current Date: {current_date}</div>
+                            <div class="stHeader">Current Time: {current_time}</div>
+                        </div>
+                        <div class="card">
+                            <div class="stMetric">Temperature: {current_temp:.1f}°C</div>
+                            <div class="stMetric">Feels Like: {feels_like:.1f}°C</div>
+                            <div class="stMetric">Minimum Temperature: {min_temp:.1f}°C</div>
+                            <div class="stMetric">Maximum Temperature: {max_temp:.1f}°C</div>
+                            <div class="stMetric">Humidity: {humidity:.1f}%</div>
+                        </div>
+                        <div class="card">
+                            <div class="stMetric">Predicted Water Usage: {predicted_usage:.2f} liters</div>
+                            <div class="stMetric">Filtration Adjustment Needed: {filtration_adjustment:.2f}</div>
+                            <div class="stMetric">Chemicals Needed: {chemicals:.2f} units</div>
+                            <div class="stMetric">Energy Needed: {energy:.2f} kWh</div>
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True
+                )
 
                 # Maintenance prediction
                 days_since_last_maintenance = (now - datetime.datetime(2024, 1, 1)).days
@@ -151,8 +142,8 @@ def update_data():
         except Exception as e:
             st.error(f"An error occurred: {e}")
         
-        # Pause before updating again
-        time.sleep(60)  # Update every 60 seconds
+        # Update every second
+        time.sleep(1)
 
 # Run the update data function
 update_data()
