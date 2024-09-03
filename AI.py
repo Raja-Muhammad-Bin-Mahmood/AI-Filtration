@@ -2,135 +2,76 @@ import streamlit as st
 import requests
 import datetime
 import time
-import numpy as np
 import random
 
 # Set Streamlit page configuration
 st.set_page_config(
     page_title="AI Water Filtration Dashboard",
     page_icon="💧",
-    layout="wide",
-    initial_sidebar_state="collapsed",
+    layout="centered",
 )
 
 # Custom CSS for styling
 st.markdown(
     """
     <style>
-    /* Background styling */
+    /* General styling */
     .stApp {
-        background: linear-gradient(120deg, #000428, #004e92);
-        color: #ffffff;
-        font-family: 'Segoe UI', sans-serif;
+        background-color: #f0f2f6;
+        color: #333333;
+        font-family: 'Arial', sans-serif;
     }
 
-    /* Navbar styling */
-    .navbar {
-        display: flex;
-        justify-content: space-around;
-        padding: 1rem 0;
-        background-color: rgba(0, 0, 0, 0.7);
-        backdrop-filter: blur(5px);
+    /* Main content styling */
+    .content {
+        padding: 20px;
+        background-color: #ffffff;
         border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
     }
 
-    .navbar a {
-        color: #ffffff;
-        text-decoration: none;
-        font-size: 1.5rem;
-        transition: color 0.3s;
+    /* Label styling */
+    .label {
+        font-size: 1.25rem;
+        font-weight: bold;
+        margin-bottom: 5px;
     }
 
-    .navbar a:hover {
-        color: #00ffff;
-    }
-
-    /* Dropdown menu styling */
-    .dropdown-content {
-        display: none;
-        position: absolute;
-        background-color: #333333;
-        min-width: 200px;
-        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-        z-index: 1;
-    }
-
-    .dropdown-content a {
-        color: white;
-        padding: 12px 16px;
-        text-decoration: none;
-        display: block;
-        transition: background-color 0.3s;
-    }
-
-    .dropdown-content a:hover {
-        background-color: #575757;
-    }
-
-    .dropdown:hover .dropdown-content {
-        display: block;
+    /* Value styling */
+    .value {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #007BFF;
     }
 
     /* Maintenance bar */
     .maintenance-bar {
-        position: fixed;
-        bottom: 0;
-        width: 100%;
-        background-color: #ff5555;
+        padding: 10px;
+        background-color: #ff3333;
         text-align: center;
-        padding: 1rem;
         font-weight: bold;
-        font-size: 1.2rem;
+        font-size: 1rem;
         color: white;
-    }
-
-    /* Animated values */
-    .animated-value {
-        font-size: 2rem;
-        font-weight: bold;
-        color: #00ffff;
-        animation: changeValue 1s infinite alternate;
-    }
-
-    @keyframes changeValue {
-        0% { color: #00ffff; }
-        100% { color: #ffcc00; }
+        border-radius: 5px;
+        margin-top: 20px;
     }
     </style>
     """,
     unsafe_allow_html=True,
 )
 
-# Navbar with dropdown menus
-st.markdown(
-    """
-    <div class="navbar">
-        <div class="dropdown">
-            <a href="#">Temperature</a>
-            <div class="dropdown-content">
-                <a href="#">Temperature: Dynamic data...</a>
-                <a href="#">Feels Like: Dynamic data...</a>
-                <a href="#">Humidity: Dynamic data...</a>
-            </div>
-        </div>
-        <div class="dropdown">
-            <a href="#">Logistics</a>
-            <div class="dropdown-content">
-                <a href="#">Chemicals: Dynamic data...</a>
-                <a href="#">Energy Usage: Dynamic data...</a>
-                <a href="#">Maintenance: Dynamic data...</a>
-            </div>
-        </div>
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
-
 # OpenWeatherMap API configuration
-api_key = "ec5dff3620be8d025f51f648826a4ada"
+api_key = "YOUR_API_KEY"  # Replace with your OpenWeatherMap API key
 lat = 32.6970
 lon = 73.3252
 url = f"http://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={api_key}&units=metric"
+
+# Function to fetch weather data
+def fetch_weather_data():
+    response = requests.get(url)
+    data = response.json()
+    return data
 
 # Define the predictive model
 def predict_water_usage(temp):
@@ -153,8 +94,7 @@ def resource_management(adjustment):
 # Function to update and display data
 def update_data():
     # Fetch weather data
-    response = requests.get(url)
-    data = response.json()
+    data = fetch_weather_data()
 
     # Extract data and update dynamically
     if 'main' in data:
@@ -171,20 +111,18 @@ def update_data():
         # Resource management
         chemicals, energy = resource_management(filtration_adjustment)
 
-        # Get current date and time
-        now = datetime.datetime.now()
-        current_date = now.strftime("%Y-%m-%d")
-        current_time = now.strftime("%H:%M:%S")
-
-        # Display data
-        st.markdown(f"<div class='animated-value'>Temperature: {current_temp:.1f}°C</div>", unsafe_allow_html=True)
-        st.markdown(f"<div class='animated-value'>Feels Like: {feels_like:.1f}°C</div>", unsafe_allow_html=True)
-        st.markdown(f"<div class='animated-value'>Humidity: {humidity:.1f}%</div>", unsafe_allow_html=True)
-        st.markdown(f"<div class='animated-value'>Predicted Water Usage: {predicted_usage:.2f} liters</div>", unsafe_allow_html=True)
-        st.markdown(f"<div class='animated-value'>Chemicals Needed: {chemicals:.2f} units</div>", unsafe_allow_html=True)
-        st.markdown(f"<div class='animated-value'>Energy Needed: {energy:.2f} kWh</div>", unsafe_allow_html=True)
+        # Display data in a structured way
+        st.markdown("<div class='content'>", unsafe_allow_html=True)
+        st.markdown(f"<div class='label'>Temperature:</div> <div class='value'>{current_temp:.1f}°C</div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='label'>Feels Like:</div> <div class='value'>{feels_like:.1f}°C</div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='label'>Humidity:</div> <div class='value'>{humidity:.1f}%</div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='label'>Predicted Water Usage:</div> <div class='value'>{predicted_usage:.2f} liters</div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='label'>Chemicals Needed:</div> <div class='value'>{chemicals:.2f} units</div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='label'>Energy Needed:</div> <div class='value'>{energy:.2f} kWh</div>", unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
 
         # Maintenance prediction
+        now = datetime.datetime.now()
         days_since_last_maintenance = (now - datetime.datetime(2024, 1, 1)).days
         maintenance_due = days_since_last_maintenance > 30
 
