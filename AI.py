@@ -17,19 +17,19 @@ st.markdown(
     <style>
     /* General styling */
     .stApp {
-        background-color: #e0f7fa;
-        color: #333333;
+        background-color: #1e1e1e; /* Dark background for contrast */
+        color: #ffffff; /* White text for readability */
         font-family: 'Arial', sans-serif;
     }
 
     /* Main content styling */
     .content {
         padding: 20px;
-        background-color: #ffffff;
+        background-color: #2c3e50; /* Darker background for content */
         border-radius: 15px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         margin-bottom: 20px;
-        border: 2px solid #007BFF;
+        border: 2px solid #3498db; /* Blue border for the content area */
     }
 
     /* Label styling */
@@ -43,31 +43,31 @@ st.markdown(
     .value {
         font-size: 2rem;
         font-weight: bold;
-        color: #007BFF;
+        color: #3498db; /* Blue color for values */
     }
 
     /* Maintenance bar */
     .maintenance-bar {
         padding: 15px;
-        background-color: #007BFF;
+        background-color: #e74c3c; /* Red background for maintenance alert */
         text-align: center;
         font-weight: bold;
         font-size: 1rem;
         color: white;
         border-radius: 25px;
         margin-top: 20px;
+        border: 2px solid #c0392b; /* Darker red border for emphasis */
     }
 
     /* Reverse osmosis section */
     .ro-section {
         padding: 15px;
-        background-color: #ffffff;
+        background-color: #34495e; /* Dark blue-gray for RO section */
         border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         margin-top: 20px;
-        border: 2px solid #007BFF;
+        border: 2px solid #3498db; /* Blue border for RO section */
     }
-
     </style>
     """,
     unsafe_allow_html=True,
