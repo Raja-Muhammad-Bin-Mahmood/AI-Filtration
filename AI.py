@@ -1,5 +1,11 @@
 import subprocess
 import sys
+import streamlit as st
+import requests
+import datetime
+import time
+import numpy as np
+import random
 
 # Function to install required packages
 def install_packages():
@@ -14,21 +20,14 @@ def install_packages():
 # Install packages
 install_packages()
 
-import streamlit as st
-import requests
-import datetime
-import time
-import numpy as np
-
 # OpenWeatherMap API configuration
-api_key = "ec5dff3620be8d025f51f648826a4ada"  # Replace with your actual OpenWeatherMap API key
+api_key = "ec5dff3620be8d025f51f648826a4ada"
 lat = 32.6970
 lon = 73.3252
 url = f"http://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={api_key}&units=metric"
 
 # Define the predictive model
 def predict_water_usage(temp):
-    # Simplified model for demonstration
     if temp < 25:
         return 1000
     elif temp < 30:
@@ -48,10 +47,8 @@ def adjust_filtration(usage):
 
 # Define resource management
 def resource_management(adjustment):
-    chemicals_used = 100
-    energy_used = 50
-    chemicals_used += adjustment * 10
-    energy_used += adjustment * 5
+    chemicals_used = 100 + adjustment * 10
+    energy_used = 50 + adjustment * 5
     return chemicals_used, energy_used
 
 # Streamlit app
@@ -81,13 +78,23 @@ st.markdown("""
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, rgba(0, 51, 0, 0.5), rgba(0, 0, 0, 0.5));
+            background-image: url('https://www.example.com/your-wallpaper.jpg'); /* Replace with your wallpaper URL */
+            background-size: cover;
             animation: moveBackground 30s linear infinite;
             z-index: -1;
         }
         @keyframes moveBackground {
             0% { background-position: 0% 0%; }
             100% { background-position: 100% 100%; }
+        }
+        .stMarkdown {
+            font-family: 'Arial', sans-serif;
+        }
+        .stDataFrame {
+            border: 2px solid #00ff00;
+            border-radius: 8px;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.5);
         }
     </style>
     <div class="animated-background"></div>
@@ -103,11 +110,11 @@ def update_data():
 
             # Extract data
             if 'main' in data:
-                current_temp = data['main']['temp']
-                feels_like = data['main']['feels_like']
-                min_temp = data['main']['temp_min']
-                max_temp = data['main']['temp_max']
-                humidity = data['main']['humidity']
+                current_temp = data['main']['temp'] + random.uniform(-0.5, 0.5)
+                feels_like = data['main']['feels_like'] + random.uniform(-0.5, 0.5)
+                min_temp = data['main']['temp_min'] + random.uniform(-0.5, 0.5)
+                max_temp = data['main']['temp_max'] + random.uniform(-0.5, 0.5)
+                humidity = data['main']['humidity'] + random.uniform(-1, 1)
                 
                 # Predict water usage
                 predicted_usage = predict_water_usage(current_temp)
@@ -124,17 +131,17 @@ def update_data():
                 current_time = now.strftime("%H:%M:%S")
 
                 # Display data
-                st.write(f"Current Date: {current_date}")
-                st.write(f"Current Time: {current_time}")
-                st.write(f"Temperature: {current_temp}°C")
-                st.write(f"Feels Like: {feels_like}°C")
-                st.write(f"Minimum Temperature: {min_temp}°C")
-                st.write(f"Maximum Temperature: {max_temp}°C")
-                st.write(f"Humidity: {humidity}%")
-                st.write(f"Predicted Water Usage: {predicted_usage:.2f} liters")
-                st.write(f"Filtration Adjustment Needed: {filtration_adjustment:.2f}")
-                st.write(f"Chemicals Needed: {chemicals:.2f}")
-                st.write(f"Energy Needed: {energy:.2f}")
+                st.markdown(f"### Current Date: {current_date}")
+                st.markdown(f"### Current Time: {current_time}")
+                st.markdown(f"**Temperature:** {current_temp:.1f}°C")
+                st.markdown(f"**Feels Like:** {feels_like:.1f}°C")
+                st.markdown(f"**Minimum Temperature:** {min_temp:.1f}°C")
+                st.markdown(f"**Maximum Temperature:** {max_temp:.1f}°C")
+                st.markdown(f"**Humidity:** {humidity:.1f}%")
+                st.markdown(f"**Predicted Water Usage:** {predicted_usage:.2f} liters")
+                st.markdown(f"**Filtration Adjustment Needed:** {filtration_adjustment:.2f}")
+                st.markdown(f"**Chemicals Needed:** {chemicals:.2f} units")
+                st.markdown(f"**Energy Needed:** {energy:.2f} kWh")
 
                 # Maintenance prediction
                 days_since_last_maintenance = (now - datetime.datetime(2024, 1, 1)).days
