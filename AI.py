@@ -62,7 +62,7 @@ st.markdown(
 )
 
 # OpenWeatherMap API configuration
-api_key = "YOUR_API_KEY"  # Replace with your OpenWeatherMap API key
+api_key = "ec5dff3620be8d025f51f648826a4ada"  # Replace with your OpenWeatherMap API key
 lat = 32.6970
 lon = 73.3252
 url = f"http://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={api_key}&units=metric"
