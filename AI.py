@@ -1,7 +1,6 @@
 import streamlit as st
 import requests
 import datetime
-import time
 import random
 
 # OpenWeatherMap API configuration
@@ -87,6 +86,7 @@ st.markdown("""
 st.title("AI Water Filtration Dashboard")
 
 # Function to fetch weather data
+@st.cache(ttl=60)
 def fetch_weather_data():
     try:
         response = requests.get(url)
@@ -97,93 +97,81 @@ def fetch_weather_data():
         st.error(f"Error fetching weather data: {e}")
         return {}
 
-# Function to update and display data
-def update_data():
-    data_placeholder = st.empty()
-    
-    while True:
-        try:
-            # Fetch weather data
-            data = fetch_weather_data()
+# Display data
+def display_data():
+    data = fetch_weather_data()
 
-            # Extract data
-            if 'main' in data:
-                current_temp = data['main']['temp'] + random.uniform(-0.5, 0.5)
-                feels_like = data['main']['feels_like'] + random.uniform(-0.5, 0.5)
-                min_temp = data['main']['temp_min'] + random.uniform(-0.5, 0.5)
-                max_temp = data['main']['temp_max'] + random.uniform(-0.5, 0.5)
-                humidity = data['main']['humidity'] + random.uniform(-1, 1)
-                
-                # Predict water usage
-                predicted_usage = predict_water_usage(current_temp)
-                
-                # Adjust filtration
-                filtration_adjustment = adjust_filtration(predicted_usage)
-                
-                # Resource management
-                chemicals, energy = resource_management(filtration_adjustment)
+    if 'main' in data:
+        current_temp = data['main']['temp'] + random.uniform(-0.5, 0.5)
+        feels_like = data['main']['feels_like'] + random.uniform(-0.5, 0.5)
+        min_temp = data['main']['temp_min'] + random.uniform(-0.5, 0.5)
+        max_temp = data['main']['temp_max'] + random.uniform(-0.5, 0.5)
+        humidity = data['main']['humidity'] + random.uniform(-1, 1)
 
-                # Get current date and time
-                now = datetime.datetime.now()
-                current_date = now.strftime("%Y-%m-%d")
-                current_time = now.strftime("%H:%M:%S")
+        # Predict water usage
+        predicted_usage = predict_water_usage(current_temp)
 
-                # Clear previous content
-                data_placeholder.empty()
+        # Adjust filtration
+        filtration_adjustment = adjust_filtration(predicted_usage)
 
-                # Update the display
-                data_placeholder.markdown(
-                    f"""
-                    <div class="content">
-                        <div class="stHeader">Current Date: {current_date}</div>
-                        <div class="stHeader">Current Time: {current_time}</div>
-                        <div class="card">
-                            <div class="label">Temperature:</div> <div class="value">{current_temp:.1f}°C</div>
-                            <div class="label">Feels Like:</div> <div class="value">{feels_like:.1f}°C</div>
-                            <div class="label">Minimum Temperature:</div> <div class="value">{min_temp:.1f}°C</div>
-                            <div class="label">Maximum Temperature:</div> <div class="value">{max_temp:.1f}°C</div>
-                            <div class="label">Humidity:</div> <div class="value">{humidity:.1f}%</div>
-                        </div>
-                        <div class="card">
-                            <div class="label">Predicted Water Usage:</div> <div class="value">{predicted_usage:.2f} liters</div>
-                            <div class="label">Filtration Adjustment Needed:</div> <div class="value">{filtration_adjustment:.2f}</div>
-                            <div class="label">Chemicals Needed:</div> <div class="value">{chemicals:.2f} units</div>
-                            <div class="label">Energy Needed:</div> <div class="value">{energy:.2f} kWh</div>
-                        </div>
-                    </div>
-                    """, unsafe_allow_html=True
-                )
+        # Resource management
+        chemicals, energy = resource_management(filtration_adjustment)
 
-                # Maintenance prediction
-                days_since_last_maintenance = (now - datetime.datetime(2024, 1, 1)).days
-                maintenance_due = days_since_last_maintenance > 30
+        # Get current date and time
+        now = datetime.datetime.now()
+        current_date = now.strftime("%Y-%m-%d")
+        current_time = now.strftime("%H:%M:%S")
 
-                if maintenance_due:
-                    data_placeholder.markdown(f"<div class='maintenance-bar'>Maintenance is required. It's been {days_since_last_maintenance} days since the last maintenance.</div>", unsafe_allow_html=True)
-                else:
-                    data_placeholder.markdown("<div class='maintenance-bar'>No maintenance needed at the moment.</div>", unsafe_allow_html=True)
+        # Update the display
+        st.markdown(
+            f"""
+            <div class="content">
+                <div class="stHeader">Current Date: {current_date}</div>
+                <div class="stHeader">Current Time: {current_time}</div>
+                <div class="card">
+                    <div class="label">Temperature:</div> <div class="value">{current_temp:.1f}°C</div>
+                    <div class="label">Feels Like:</div> <div class="value">{feels_like:.1f}°C</div>
+                    <div class="label">Minimum Temperature:</div> <div class="value">{min_temp:.1f}°C</div>
+                    <div class="label">Maximum Temperature:</div> <div class="value">{max_temp:.1f}°C</div>
+                    <div class="label">Humidity:</div> <div class="value">{humidity:.1f}%</div>
+                </div>
+                <div class="card">
+                    <div class="label">Predicted Water Usage:</div> <div class="value">{predicted_usage:.2f} liters</div>
+                    <div class="label">Filtration Adjustment Needed:</div> <div class="value">{filtration_adjustment:.2f}</div>
+                    <div class="label">Chemicals Needed:</div> <div class="value">{chemicals:.2f} units</div>
+                    <div class="label">Energy Needed:</div> <div class="value">{energy:.2f} kWh</div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True
+        )
 
-                # Reverse osmosis status (dummy example)
-                ro_status = {
-                    "membrane_life": f"{random.uniform(50, 100):.1f}%",
-                    "flow_rate": f"{random.uniform(10, 20):.1f} L/min",
-                    "pressure": f"{random.uniform(50, 100):.1f} bar"
-                }
+        # Maintenance prediction
+        days_since_last_maintenance = (now - datetime.datetime(2024, 1, 1)).days
+        maintenance_due = days_since_last_maintenance > 30
 
-                data_placeholder.markdown("<div class='ro-section'>", unsafe_allow_html=True)
-                data_placeholder.markdown(f"<div class='label'>RO Membrane Life:</div> <div class='value'>{ro_status['membrane_life']}</div>", unsafe_allow_html=True)
-                data_placeholder.markdown(f"<div class='label'>Flow Rate:</div> <div class='value'>{ro_status['flow_rate']}</div>", unsafe_allow_html=True)
-                data_placeholder.markdown(f"<div class='label'>Pressure:</div> <div class='value'>{ro_status['pressure']}</div>", unsafe_allow_html=True)
-                data_placeholder.markdown("</div>", unsafe_allow_html=True)
+        if maintenance_due:
+            st.markdown(f"<div class='maintenance-bar'>Maintenance is required. It's been {days_since_last_maintenance} days since the last maintenance.</div>", unsafe_allow_html=True)
+        else:
+            st.markdown("<div class='maintenance-bar'>No maintenance needed at the moment.</div>", unsafe_allow_html=True)
 
-            else:
-                st.error("Error fetching weather data.")
-            
-        except Exception as e:
-            st.error(f"An error occurred: {e}")
-        
-        # Update every second
-        time.sleep(1)
+        # Reverse osmosis status (dummy example)
+        ro_status = {
+            "membrane_life": f"{random.uniform(50, 100):.1f}%",
+            "flow_rate": f"{random.uniform(10, 20):.1f} L/min",
+            "pressure": f"{random.uniform(50, 100):.1f} bar"
+        }
 
-# Run the update data function
-update_data()
+        st.markdown("<div class='ro-section'>", unsafe_allow_html=True)
+        st.markdown(f"<div class='label'>RO Membrane Life:</div> <div class='value'>{ro_status['membrane_life']}</div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='label'>Flow Rate:</div> <div class='value'>{ro_status['flow_rate']}</div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='label'>Pressure:</div> <div class='value'>{ro_status['pressure']}</div>", unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
+    else:
+        st.error("Error fetching weather data.")
+
+# Button to refresh data
+if st.button("Refresh Data"):
+    display_data()
+else:
+    st.write("Press the button to refresh data.")
+
