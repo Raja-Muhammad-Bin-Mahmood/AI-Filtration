@@ -1,6 +1,8 @@
 import streamlit as st
 import random
 from datetime import datetime, timedelta
+import time  # Added for refresh functionality
+
 
 # Error handling for temperature formatting (fixed)
 def get_formatted_temperature(min_value, max_value, decimals=2):
@@ -89,4 +91,30 @@ filter_data = [
         "title": "AquaGuard Filter",
         "flow_rate": random.randint(350, 450),
         "temperature": get_formatted_temperature(22.0, 25.0),
-    }
+        "chemical_dosage": random.randint(7, 12),
+        "maintenance_done": (datetime.now() - timedelta(days=29)).strftime("%Y-%m-%d"),
+        "maintenance_due": (datetime.now() + timedelta(days=45)).strftime("%Y-%m-%d"),
+    },
+    {
+        "title": "HydroFlow Unit",
+        "flow_rate": random.randint(380, 480),
+        "temperature": get_formatted_temperature(22.0, 25.0),
+        "chemical_dosage": random.randint(6, 14),
+        "maintenance_done": (datetime.now() - timedelta(days=29)).strftime("%Y-%m-%d"),
+        "maintenance_due": (datetime.now() + timedelta(days=45)).strftime("%Y-%m-%d"),
+    },
+]
+
+# Display filter information in columns
+col1, col2, col3 = st.columns(3)
+
+for i, filter_info in enumerate(filter_data):
+    with st.container():
+        st.markdown(f'<div class="stBox"><h3>{filter_info["title"]}</h3>', unsafe_allow_html=True)
+        st.text(f"Flow Rate: {filter_info['flow_rate']} Liters/day")
+        st.text(f"Temperature: {filter_info['temperature']}")
+        st.text(f"Chemical Dosage: {filter_info['chemical_dosage']} kg/day")
+        st.markdown(f'<div class="stGreenBox">Maintenance done {filter_info["maintenance_done"]}. Next maintenance due in {filter_info["maintenance_due"]}.<br></div>', unsafe_allow_html=True)
+
+# Implement refresh functionality
+refresh_data()
