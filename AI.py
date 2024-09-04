@@ -1,19 +1,29 @@
 import streamlit as st
 import requests
-import time
-import subprocess
+import random
 import sys
 
-# Function to install required packages
-def install_packages():
-    packages = ["streamlit_autorefresh", "requests"]
-    for package in packages:
-        subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+# Check and install necessary packages
+try:
+    from streamlit_autorefresh import st_autorefresh
+except ImportError:
+    st.error("Required package `streamlit_autorefresh` is not installed. Please install it manually using pip.")
+    sys.exit(1)
 
-# Install required packages
-install_packages()
+# Function to get weather data
+def get_weather_data(api_key, location="Jhelum,PK"):
+    url = f"http://api.weatherstack.com/current?access_key={api_key}&query={location}"
+    response = requests.get(url)
+    return response.json()
 
-from streamlit_autorefresh import st_autorefresh
+# Replace with your Weather API key
+api_key = "ec5dff3620be8d025f51f648826a4ada"
+
+# Fetch weather data
+weather_data = get_weather_data(api_key)
+
+# Extract temperature (simulated for demo)
+temperature = weather_data['current']['temperature']
 
 # Set up the page
 st.set_page_config(layout="wide", page_title="Water Filtration Plants PD Khan Thill Sharif")
@@ -33,21 +43,6 @@ st.markdown("<h1 class='stTitle'>Water Filtration Plants PD Khan Thill Sharif</h
 
 # Auto-refresh every 60 seconds
 count = st_autorefresh(interval=60000, limit=100, key="refresh_counter")
-
-# Function to fetch weather data using the Weather API
-def get_weather_data(api_key, location="Jhelum,PK"):
-    url = f"http://api.weatherstack.com/current?access_key={api_key}&query={location}"
-    response = requests.get(url)
-    return response.json()
-
-# Replace with your Weather API key
-api_key = "ec5dff3620be8d025f51f648826a4ada"
-
-# Fetch weather data
-weather_data = get_weather_data(api_key)
-
-# Extract temperature (simulated for demo)
-temperature = weather_data['current']['temperature']
 
 # Column layout for three filters
 col1, col2, col3 = st.columns(3)
@@ -69,6 +64,6 @@ with col2:
 with col3:
     display_unit("HydroFlow Unit", (380, 480), (6, 14), (10, 20))
 
-# Implementing a refresh using Streamlit's rerun method (auto-refresh handles updates)
+# Implementing a manual refresh button (auto-refresh handles updates)
 if st.button("Manual Refresh"):
     st.experimental_rerun()
