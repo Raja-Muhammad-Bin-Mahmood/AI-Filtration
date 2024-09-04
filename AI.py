@@ -187,7 +187,6 @@ def main():
     display_maintenance_message()
 
 # Automatically refresh the data every 60 seconds
-st_autorefresh = st.experimental_rerun
-st.experimental_memo.clear()
-main()
+st_autorefresh(interval=60000, key="data_refresh")
 
+main()
