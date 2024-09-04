@@ -34,7 +34,7 @@ with col2:
 with col3:
     st.markdown('<div class="stBox"><h3>HydroFlow Unit</h3>', unsafe_allow_html=True)
     st.text(f"Flow Rate: {random.randint(380, 480)} Liters/day")
-    st.text(f"Temperature: {random.uniform(22.0, 25.0)::.2f} °C")
+    st.text(f"Temperature: {random.uniform(22.0, 25.0):.2f} °C")
     st.text(f"Chemical Dosage: {random.randint(6, 14)} kg/day")
     st.markdown('<div class="stGreenBox">Maintenance done 29 days ago. Next maintenance due in 45 days.</div></div>', unsafe_allow_html=True)
 
