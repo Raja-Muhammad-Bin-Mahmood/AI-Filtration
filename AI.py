@@ -1,7 +1,6 @@
 import streamlit as st
 import requests
 import datetime
-import time
 import random
 
 # OpenWeatherMap API configuration
@@ -24,150 +23,171 @@ def adjust_filtration(usage):
 
 # Define resource management based on filtration adjustment
 def resource_management(adjustment):
-    chemical_dosage = 200 + adjustment * random.uniform(8, 12)
-    energy_consumption = 100 + adjustment * random.uniform(30, 50)
+    chemical_dosage = 200 + adjustment * random.uniform(8, 12)  # Liters/day
+    energy_consumption = 100 + adjustment * random.uniform(30, 50)  # kWh/day
     return chemical_dosage, energy_consumption
 
 # Streamlit app configuration
-st.set_page_config(page_title="AI Water Filtration Dashboard", page_icon=":droplet:", layout="wide")
+st.set_page_config(page_title="AI Water Filtration Dashboard", page_icon="💧", layout="wide")
 
 # Custom CSS for the design
 st.markdown("""
     <style>
-        .stApp {
-            background: linear-gradient(135deg, #1f005c, #5b0060, #870160, #ac255e, #ca485c, #e16b5c, #f39060, #ffb56b);
-            color: #ffffff;
-            overflow: hidden;
+        body {
+            background-color: #2f2f2f; /* Grey background */
+            color: #00aaff; /* Blue text */
+            font-family: 'Arial', sans-serif;
         }
-        .stTitle {
+        .filter-box {
+            background-color: #4b79a1; /* Complementary color for boxes */
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .filter-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
             color: #ffffff;
-            font-size: 3em;
+        }
+        .metric-label {
+            font-size: 1.1em;
             font-weight: bold;
         }
-        .stHeader {
-            font-size: 1.5em;
-            color: #ffffff;
+        .metric-value {
+            font-size: 1.3em;
+            margin-bottom: 10px;
         }
-        .stMetric {
-            font-size: 1.2em;
-            margin: 10px 0;
-        }
-        .data-container {
-            padding: 20px;
+        .maintenance-box {
+            background-color: #28a745; /* Green background */
             border-radius: 10px;
-            background: rgba(255, 255, 255, 0.1);
-            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
-        }
-        .card {
-            background: rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            color: #ffffff;
+            font-size: 1.1em;
+            margin-top: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
     </style>
 """, unsafe_allow_html=True)
 
 st.title("AI Water Filtration Dashboard")
 
-# Function to update and display data for each filter plant
-def update_data():
-    data_placeholder = st.empty()
-    
-    while True:
-        try:
-            response = requests.get(url)
-            data = response.json()
+# Function to fetch weather data
+@st.cache_data(ttl=60)
+def fetch_weather_data():
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        data = response.json()
+        return data
+    except requests.RequestException as e:
+        st.error(f"Error fetching weather data: {e}")
+        return {}
 
-            if 'main' in data:
-                current_temp = data['main']['temp'] + random.uniform(-0.5, 0.5)
-                feels_like = data['main']['feels_like'] + random.uniform(-0.5, 0.5)
-                humidity = data['main']['humidity'] + random.uniform(-1, 1)
+# Function to display filter plant data
+def display_filter_plants(data):
+    if 'main' in data:
+        current_temp = data['main']['temp'] + random.uniform(-0.5, 0.5)
+        feels_like = data['main']['feels_like'] + random.uniform(-0.5, 0.5)
+        humidity = data['main']['humidity'] + random.uniform(-1, 1)
 
-                # Data for three filter plants
-                plant_data = []
-                for i in range(3):
-                    plant_temp = current_temp + random.uniform(-0.2, 0.2)
-                    predicted_usage = predict_water_usage(plant_temp)
-                    filtration_adjustment = adjust_filtration(predicted_usage)
-                    chemical_dosage, energy_consumption = resource_management(filtration_adjustment)
-                    flow_rate = random.uniform(10000, 20000)
-                    ro_status = {
-                        "membrane_life": f"{random.uniform(50, 100):.1f}%",
-                        "flow_rate": f"{flow_rate:.1f} L/day",
-                        "pressure": f"{random.uniform(50, 100):.1f} bar"
-                    }
-                    plant_data.append({
-                        "Temperature": f"{plant_temp:.1f}°C",
-                        "Feels Like": f"{feels_like:.1f}°C",
-                        "Humidity": f"{humidity:.1f}%",
-                        "Predicted Water Usage": f"{predicted_usage:.2f} L/day",
-                        "Chemical Dosage Required": f"{chemical_dosage:.2f} L/day",
-                        "Energy Consumption": f"{energy_consumption:.2f} kWh/day",
-                        "RO Status": ro_status
-                    })
+        # Names for the filter plants
+        filter_names = ["AquaGuard", "Osmosis Pro", "HydroMax"]
 
-                # Update the display
-                data_placeholder.markdown(
-                    f"""
-                    <div class="data-container">
-                        <div class="card">
-                            <div class="stHeader">Filter Plant 1</div>
-                            <div class="stMetric">Temperature: {plant_data[0]['Temperature']}</div>
-                            <div class="stMetric">Feels Like: {plant_data[0]['Feels Like']}</div>
-                            <div class="stMetric">Humidity: {plant_data[0]['Humidity']}</div>
-                            <div class="stMetric">Predicted Water Usage: {plant_data[0]['Predicted Water Usage']}</div>
-                            <div class="stMetric">Chemical Dosage Required: {plant_data[0]['Chemical Dosage Required']}</div>
-                            <div class="stMetric">Energy Consumption: {plant_data[0]['Energy Consumption']}</div>
-                            <div class="stMetric">Flow Rate: {plant_data[0]['RO Status']['flow_rate']}</div>
-                            <div class="stMetric">Membrane Life: {plant_data[0]['RO Status']['membrane_life']}</div>
-                            <div class="stMetric">Pressure: {plant_data[0]['RO Status']['pressure']}</div>
-                        </div>
-                        <div class="card">
-                            <div class="stHeader">Osmosis Pro</div>
-                            <div class="stMetric">Temperature: {plant_data[1]['Temperature']}</div>
-                            <div class="stMetric">Feels Like: {plant_data[1]['Feels Like']}</div>
-                            <div class="stMetric">Humidity: {plant_data[1]['Humidity']}</div>
-                            <div class="stMetric">Predicted Water Usage: {plant_data[1]['Predicted Water Usage']}</div>
-                            <div class="stMetric">Chemical Dosage Required: {plant_data[1]['Chemical Dosage Required']}</div>
-                            <div class="stMetric">Energy Consumption: {plant_data[1]['Energy Consumption']}</div>
-                            <div class="stMetric">Flow Rate: {plant_data[1]['RO Status']['flow_rate']}</div>
-                            <div class="stMetric">Membrane Life: {plant_data[1]['RO Status']['membrane_life']}</div>
-                            <div class="stMetric">Pressure: {plant_data[1]['RO Status']['pressure']}</div>
-                        </div>
-                        <div class="card">
-                            <div class="stHeader">H2O Max</div>
-                            <div class="stMetric">Temperature: {plant_data[2]['Temperature']}</div>
-                            <div class="stMetric">Feels Like: {plant_data[2]['Feels Like']}</div>
-                            <div class="stMetric">Humidity: {plant_data[2]['Humidity']}</div>
-                            <div class="stMetric">Predicted Water Usage: {plant_data[2]['Predicted Water Usage']}</div>
-                            <div class="stMetric">Chemical Dosage Required: {plant_data[2]['Chemical Dosage Required']}</div>
-                            <div class="stMetric">Energy Consumption: {plant_data[2]['Energy Consumption']}</div>
-                            <div class="stMetric">Flow Rate: {plant_data[2]['RO Status']['flow_rate']}</div>
-                            <div class="stMetric">Membrane Life: {plant_data[2]['RO Status']['membrane_life']}</div>
-                            <div class="stMetric">Pressure: {plant_data[2]['RO Status']['pressure']}</div>
-                        </div>
+        # Create three filter plants with similar temperature but different other metrics
+        filter_plants = []
+        for name in filter_names:
+            plant_temp = current_temp + random.uniform(-0.2, 0.2)
+            predicted_usage = predict_water_usage(plant_temp)
+            filtration_adjustment = adjust_filtration(predicted_usage)
+            chemical_dosage, energy_consumption = resource_management(filtration_adjustment)
+            flow_rate = random.uniform(10000, 20000)  # Liters/day
+            ro_status = {
+                "membrane_life": f"{random.uniform(50, 100):.1f}%",
+                "flow_rate": f"{flow_rate:.1f} L/day",
+                "pressure": f"{random.uniform(50, 100):.1f} bar"
+            }
+            filter_plants.append({
+                "Name": name,
+                "Temperature": f"{plant_temp:.1f}°C",
+                "Feels Like": f"{feels_like:.1f}°C",
+                "Humidity": f"{humidity:.1f}%",
+                "Predicted Water Usage": f"{predicted_usage:.2f} L/day",
+                "Chemical Dosage Required": f"{chemical_dosage:.2f} L/day",
+                "Energy Consumption": f"{energy_consumption:.2f} kWh/day",
+                "RO Status": ro_status
+            })
+
+        # Display the filter plants vertically
+        for plant in filter_plants:
+            st.markdown(f"""
+                <div class="filter-box">
+                    <div class="filter-title">{plant['Name']}</div>
+                    <div>
+                        <span class="metric-label">Temperature:</span>
+                        <span class="metric-value">{plant['Temperature']}</span>
                     </div>
-                    """, unsafe_allow_html=True
-                )
+                    <div>
+                        <span class="metric-label">Feels Like:</span>
+                        <span class="metric-value">{plant['Feels Like']}</span>
+                    </div>
+                    <div>
+                        <span class="metric-label">Humidity:</span>
+                        <span class="metric-value">{plant['Humidity']}</span>
+                    </div>
+                    <div>
+                        <span class="metric-label">Predicted Water Usage:</span>
+                        <span class="metric-value">{plant['Predicted Water Usage']}</span>
+                    </div>
+                    <div>
+                        <span class="metric-label">Chemical Dosage Required:</span>
+                        <span class="metric-value">{plant['Chemical Dosage Required']}</span>
+                    </div>
+                    <div>
+                        <span class="metric-label">Energy Consumption:</span>
+                        <span class="metric-value">{plant['Energy Consumption']}</span>
+                    </div>
+                    <div>
+                        <span class="metric-label">Flow Rate:</span>
+                        <span class="metric-value">{plant['RO Status']['flow_rate']}</span>
+                    </div>
+                    <div>
+                        <span class="metric-label">Membrane Life:</span>
+                        <span class="metric-value">{plant['RO Status']['membrane_life']}</span>
+                    </div>
+                    <div>
+                        <span class="metric-label">Pressure:</span>
+                        <span class="metric-value">{plant['RO Status']['pressure']}</span>
+                    </div>
+                </div>
+            """, unsafe_allow_html=True)
 
-                # Maintenance prediction
-                now = datetime.datetime.now()
-                days_since_last_maintenance = (now - datetime.datetime(2024, 1, 1)).days
-                maintenance_due = days_since_last_maintenance > 30
+    else:
+        st.error("Error fetching weather data.")
 
-                if maintenance_due:
-                    st.warning(f"Maintenance is required. It's been {days_since_last_maintenance} days since the last maintenance.")
-                else:
-                    st.success("No maintenance needed at the moment.")
+# Function to display maintenance message
+def display_maintenance_message():
+    last_maintenance_date = datetime.datetime(2024, 4, 27)  # Example date
+    now = datetime.datetime.now()
+    days_since_last_maintenance = (now - last_maintenance_date).days
+    next_maintenance_in = random.randint(20, 50)  # Days until next maintenance
 
-            else:
-                st.error("Error fetching weather data.")
+    st.markdown(f"""
+        <div class="maintenance-box">
+            Maintenance done {days_since_last_maintenance} days ago.<br>
+            Next maintenance should be done by {next_maintenance_in} days.
+        </div>
+    """, unsafe_allow_html=True)
 
-        except Exception as e:
-            st.error(f"An error occurred: {e}")
-        
-        time.sleep(1)
+# Main function to control the dashboard
+def main():
+    data = fetch_weather_data()
+    display_filter_plants(data)
+    display_maintenance_message()
 
-# Run the update data function
-update_data()
+# Automatically refresh the data every 60 seconds
+st_autorefresh = st.experimental_rerun
+st.experimental_memo.clear()
+main()
+
