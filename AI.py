@@ -89,3 +89,4 @@ filter_data = [
         "title": "AquaGuard Filter",
         "flow_rate": random.randint(350, 450),
         "temperature": get_formatted_temperature(22.0, 25.0),
+    }
