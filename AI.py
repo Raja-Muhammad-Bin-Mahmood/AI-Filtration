@@ -6,7 +6,7 @@ import time
 # Set up the page
 st.set_page_config(layout="wide")
 
-# Styling with a water theme
+# Styling with a water theme and bold text
 st.markdown("""
     <style>
     body {background-color: #f0f4f7;}
@@ -15,6 +15,7 @@ st.markdown("""
     .stGreenBox {background-color: #28a745; border-radius: 15px; padding: 20px; color: #ffffff;}
     .stTitle {font-size: 2.5em; font-weight: bold; text-align: center; color: #0a74da;}
     .stBorder {border: 2px solid #0a74da; border-radius: 10px; padding: 10px; margin-bottom: 20px;}
+    .bold-text {font-weight: bold; font-size: 1.2em;}
     </style>
 """, unsafe_allow_html=True)
 
@@ -26,6 +27,7 @@ api_key = "ec5dff3620be8d025f51f648826a4ada"
 latitude = 32.6970
 longitude = 73.3252
 
+# Function to fetch weather data from the API using latitude and longitude
 def fetch_weather_data():
     url = f"http://api.weatherstack.com/current?access_key={api_key}&query={latitude},{longitude}"
     response = requests.get(url)
@@ -52,33 +54,33 @@ def display_data():
 
     with col1:
         st.markdown('<div class="stBox stBorder"><h3>Osmosis Reactor</h3>', unsafe_allow_html=True)
-        st.text(f"Flow Rate: {random.randint(400, 500)} Liters/day")
-        st.text(f"Temperature: {temp_c} °C (Real-time)")
-        st.text(f"Humidity: {humidity}%")
-        st.text(f"Weather: {weather_desc}")
-        st.text(f"Chemical Dosage: {random.randint(5, 15)} kg/day")
+        st.markdown(f'<p class="bold-text">Flow Rate: {random.randint(400, 500)} Liters/day</p>', unsafe_allow_html=True)
+        st.markdown(f'<p class="bold-text">Temperature: {temp_c} °C (Real-time)</p>', unsafe_allow_html=True)
+        st.markdown(f'<p class="bold-text">Humidity: {humidity}%</p>', unsafe_allow_html=True)
+        st.markdown(f'<p class="bold-text">Weather: {weather_desc}</p>', unsafe_allow_html=True)
+        st.markdown(f'<p class="bold-text">Chemical Dosage: {random.randint(5, 15)} kg/day</p>', unsafe_allow_html=True)
         st.markdown('<div class="stGreenBox">Maintenance done 29 days ago. Next maintenance due in 45 days.</div></div>', unsafe_allow_html=True)
 
     with col2:
         st.markdown('<div class="stBox stBorder"><h3>AquaGuard Filter</h3>', unsafe_allow_html=True)
-        st.text(f"Flow Rate: {random.randint(350, 450)} Liters/day")
-        st.text(f"Temperature: {temp_c} °C (Real-time)")
-        st.text(f"Humidity: {humidity}%")
-        st.text(f"Weather: {weather_desc}")
-        st.text(f"Chemical Dosage: {random.randint(7, 12)} kg/day")
+        st.markdown(f'<p class="bold-text">Flow Rate: {random.randint(350, 450)} Liters/day</p>', unsafe_allow_html=True)
+        st.markdown(f'<p class="bold-text">Temperature: {temp_c} °C (Real-time)</p>', unsafe_allow_html=True)
+        st.markdown(f'<p class="bold-text">Humidity: {humidity}%</p>', unsafe_allow_html=True)
+        st.markdown(f'<p class="bold-text">Weather: {weather_desc}</p>', unsafe_allow_html=True)
+        st.markdown(f'<p class="bold-text">Chemical Dosage: {random.randint(7, 12)} kg/day</p>', unsafe_allow_html=True)
         st.markdown('<div class="stGreenBox">Maintenance done 25 days ago. Next maintenance due in 35 days.</div></div>', unsafe_allow_html=True)
 
     with col3:
         st.markdown('<div class="stBox stBorder"><h3>HydroFlow Unit</h3>', unsafe_allow_html=True)
-        st.text(f"Flow Rate: {random.randint(380, 480)} Liters/day")
-        st.text(f"Temperature: {temp_c} °C (Real-time)")
-        st.text(f"Humidity: {humidity}%")
-        st.text(f"Weather: {weather_desc}")
-        st.text(f"Chemical Dosage: {random.randint(6, 14)} kg/day")
+        st.markdown(f'<p class="bold-text">Flow Rate: {random.randint(380, 480)} Liters/day</p>', unsafe_allow_html=True)
+        st.markdown(f'<p class="bold-text">Temperature: {temp_c} °C (Real-time)</p>', unsafe_allow_html=True)
+        st.markdown(f'<p class="bold-text">Humidity: {humidity}%</p>', unsafe_allow_html=True)
+        st.markdown(f'<p class="bold-text">Weather: {weather_desc}</p>', unsafe_allow_html=True)
+        st.markdown(f'<p class="bold-text">Chemical Dosage: {random.randint(6, 14)} kg/day</p>', unsafe_allow_html=True)
         st.markdown('<div class="stGreenBox">Maintenance done 20 days ago. Next maintenance due in 30 days.</div></div>', unsafe_allow_html=True)
 
-# Periodic refresh loop
+# Main loop to update data every 5 seconds
 while True:
     display_data()
-    time.sleep(10)  # Pause for 10 seconds before refreshing data
-    st.experimental_rerun()
+    time.sleep(5)  # Sleep for 5 seconds between updates
+    # No need to rerun the entire script, just refreshing values dynamically
