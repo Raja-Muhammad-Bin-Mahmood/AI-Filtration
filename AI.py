@@ -60,31 +60,40 @@ def display_data():
         with col1:
             st.markdown('<div class="stBox stBorder"><h3>Osmosis Reactor</h3>', unsafe_allow_html=True)
             st.markdown(f'<p class="bold-text">Flow Rate: {random.randint(400, 500)} Liters/day</p>', unsafe_allow_html=True)
-            st.markdown(f'<p class="bold-text">Temperature: {temp_c} °C (Real-time)</p>', unsafe_allow_html=True)
+            st.markdown(f'<p class="bold-text">Temperature: {temp_c} °C</p>', unsafe_allow_html=True)
             st.markdown(f'<p class="bold-text">Humidity: {humidity}%</p>', unsafe_allow_html=True)
             st.markdown(f'<p class="bold-text">Weather: {weather_desc}</p>', unsafe_allow_html=True)
-            st.markdown(f'<p class="bold-text">Chemical Dosage: {random.randint(5, 15)} kg/day</p>', unsafe_allow_html=True)
+            st.markdown(f'<p class="bold-text">Mineral Dosage: {random.randint(5, 15)} kg/day</p>', unsafe_allow_html=True)
+            st.markdown('<p class="bold-text">Filter Life: {}%</p>'.format(random.randint(70, 90)), unsafe_allow_html=True)
+            st.markdown('<p class="bold-text">Estimated Beneficiary Today: {} L/day ({}% increase from last month)</p>'.format(random.randint(2000, 5000), random.randint(5, 20)), unsafe_allow_html=True)
             st.markdown('<div class="stGreenBox">Maintenance done 29 days ago. Next maintenance due in 45 days.</div></div>', unsafe_allow_html=True)
+            st.markdown('<h4 class="bold-text">REAL-TIME DATA</h4>', unsafe_allow_html=True)
 
         with col2:
             st.markdown('<div class="stBox stBorder"><h3>AquaGuard Filter</h3>', unsafe_allow_html=True)
             st.markdown(f'<p class="bold-text">Flow Rate: {random.randint(350, 450)} Liters/day</p>', unsafe_allow_html=True)
-            st.markdown(f'<p class="bold-text">Temperature: {temp_c} °C (Real-time)</p>', unsafe_allow_html=True)
+            st.markdown(f'<p class="bold-text">Temperature: {temp_c} °C</p>', unsafe_allow_html=True)
             st.markdown(f'<p class="bold-text">Humidity: {humidity}%</p>', unsafe_allow_html=True)
             st.markdown(f'<p class="bold-text">Weather: {weather_desc}</p>', unsafe_allow_html=True)
-            st.markdown(f'<p class="bold-text">Chemical Dosage: {random.randint(7, 12)} kg/day</p>', unsafe_allow_html=True)
+            st.markdown(f'<p class="bold-text">Mineral Dosage: {random.randint(7, 12)} kg/day</p>', unsafe_allow_html=True)
+            st.markdown('<p class="bold-text">Filter Life: {}%</p>'.format(random.randint(65, 85)), unsafe_allow_html=True)
+            st.markdown('<p class="bold-text">Estimated Beneficiary Today: {} L/day ({}% increase from last month)</p>'.format(random.randint(2200, 5200), random.randint(3, 15)), unsafe_allow_html=True)
             st.markdown('<div class="stGreenBox">Maintenance done 25 days ago. Next maintenance due in 35 days.</div></div>', unsafe_allow_html=True)
+            st.markdown('<h4 class="bold-text">REAL-TIME DATA</h4>', unsafe_allow_html=True)
 
         with col3:
             st.markdown('<div class="stBox stBorder"><h3>HydroFlow Unit</h3>', unsafe_allow_html=True)
             st.markdown(f'<p class="bold-text">Flow Rate: {random.randint(380, 480)} Liters/day</p>', unsafe_allow_html=True)
-            st.markdown(f'<p class="bold-text">Temperature: {temp_c} °C (Real-time)</p>', unsafe_allow_html=True)
+            st.markdown(f'<p class="bold-text">Temperature: {temp_c} °C</p>', unsafe_allow_html=True)
             st.markdown(f'<p class="bold-text">Humidity: {humidity}%</p>', unsafe_allow_html=True)
             st.markdown(f'<p class="bold-text">Weather: {weather_desc}</p>', unsafe_allow_html=True)
-            st.markdown(f'<p class="bold-text">Chemical Dosage: {random.randint(6, 14)} kg/day</p>', unsafe_allow_html=True)
+            st.markdown(f'<p class="bold-text">Mineral Dosage: {random.randint(6, 14)} kg/day</p>', unsafe_allow_html=True)
+            st.markdown('<p class="bold-text">Filter Life: {}%</p>'.format(random.randint(75, 95)), unsafe_allow_html=True)
+            st.markdown('<p class="bold-text">Estimated Beneficiary Today: {} L/day ({}% increase from last month)</p>'.format(random.randint(2400, 5500), random.randint(4, 18)), unsafe_allow_html=True)
             st.markdown('<div class="stGreenBox">Maintenance done 20 days ago. Next maintenance due in 30 days.</div></div>', unsafe_allow_html=True)
+            st.markdown('<h4 class="bold-text">REAL-TIME DATA</h4>', unsafe_allow_html=True)
 
-# Main loop to update data every 10 seconds
+# Main loop to update data every 5 seconds (faster refresh)
 while True:
     display_data()
-    time.sleep(1)  # Sleep for 10 seconds between updates
+    time.sleep(5)  # Sleep for 5 seconds between updates
