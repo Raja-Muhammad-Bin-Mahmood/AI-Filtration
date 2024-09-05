@@ -1,8 +1,9 @@
+import requests
 import streamlit as st
 import random
 import time
 
-# Set up the page layout
+# Set up the page
 st.set_page_config(layout="wide")
 
 # Styling with a water theme
@@ -20,58 +21,64 @@ st.markdown("""
 # Title with custom font
 st.markdown('<h1 class="stTitle">Water Filtration Plants PD Khan Thill Sharif</h1>', unsafe_allow_html=True)
 
-# Function to simulate real-time changing values for water filtration
-def generate_filter_data():
-    return {
-        "Osmosis Reactor": {
-            "Flow Rate": f"{random.randint(400, 500)} Liters/day",
-            "Temperature": f"{random.uniform(22.0, 25.0):.2f} °C",
-            "Chemical Dosage": f"{random.randint(5, 15)} kg/day",
-            "Maintenance": "29 days ago. Next maintenance due in 45 days."
-        },
-        "AquaGuard Filter": {
-            "Flow Rate": f"{random.randint(350, 450)} Liters/day",
-            "Temperature": f"{random.uniform(22.0, 25.0):.2f} °C",
-            "Chemical Dosage": f"{random.randint(7, 12)} kg/day",
-            "Maintenance": "25 days ago. Next maintenance due in 35 days."
-        },
-        "HydroFlow Unit": {
-            "Flow Rate": f"{random.randint(380, 480)} Liters/day",
-            "Temperature": f"{random.uniform(22.0, 25.0):.2f} °C",
-            "Chemical Dosage": f"{random.randint(6, 14)} kg/day",
-            "Maintenance": "20 days ago. Next maintenance due in 30 days."
-        }
-    }
+# Weather API setup
+api_key = "ec5dff3620be8d025f51f648826a4ada"
+latitude = 32.6970
+longitude = 73.3252
 
-# Function to display the filter data in columns
-def display_filter_data():
-    data = generate_filter_data()
+def fetch_weather_data():
+    url = f"http://api.weatherstack.com/current?access_key={api_key}&query={latitude},{longitude}"
+    response = requests.get(url)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        return None
+
+def display_data():
+    # Fetch the weather data from API
+    weather_data = fetch_weather_data()
     
+    if weather_data and "current" in weather_data:
+        temp_c = weather_data['current']['temperature']
+        humidity = weather_data['current']['humidity']
+        weather_desc = weather_data['current']['weather_descriptions'][0]
+    else:
+        temp_c = random.uniform(22.0, 25.0)
+        humidity = random.randint(60, 80)
+        weather_desc = "No data"
+
+    # Column layout for three filters with the refreshed content
     col1, col2, col3 = st.columns(3)
-    
+
     with col1:
-        st.markdown(f'<div class="stBox stBorder"><h3>Osmosis Reactor</h3>', unsafe_allow_html=True)
-        st.text(f"Flow Rate: {data['Osmosis Reactor']['Flow Rate']}")
-        st.text(f"Temperature: {data['Osmosis Reactor']['Temperature']}")
-        st.text(f"Chemical Dosage: {data['Osmosis Reactor']['Chemical Dosage']}")
-        st.markdown(f'<div class="stGreenBox">Maintenance: {data["Osmosis Reactor"]["Maintenance"]}</div></div>', unsafe_allow_html=True)
+        st.markdown('<div class="stBox stBorder"><h3>Osmosis Reactor</h3>', unsafe_allow_html=True)
+        st.text(f"Flow Rate: {random.randint(400, 500)} Liters/day")
+        st.text(f"Temperature: {temp_c} °C (Real-time)")
+        st.text(f"Humidity: {humidity}%")
+        st.text(f"Weather: {weather_desc}")
+        st.text(f"Chemical Dosage: {random.randint(5, 15)} kg/day")
+        st.markdown('<div class="stGreenBox">Maintenance done 29 days ago. Next maintenance due in 45 days.</div></div>', unsafe_allow_html=True)
 
     with col2:
-        st.markdown(f'<div class="stBox stBorder"><h3>AquaGuard Filter</h3>', unsafe_allow_html=True)
-        st.text(f"Flow Rate: {data['AquaGuard Filter']['Flow Rate']}")
-        st.text(f"Temperature: {data['AquaGuard Filter']['Temperature']}")
-        st.text(f"Chemical Dosage: {data['AquaGuard Filter']['Chemical Dosage']}")
-        st.markdown(f'<div class="stGreenBox">Maintenance: {data["AquaGuard Filter"]["Maintenance"]}</div></div>', unsafe_allow_html=True)
+        st.markdown('<div class="stBox stBorder"><h3>AquaGuard Filter</h3>', unsafe_allow_html=True)
+        st.text(f"Flow Rate: {random.randint(350, 450)} Liters/day")
+        st.text(f"Temperature: {temp_c} °C (Real-time)")
+        st.text(f"Humidity: {humidity}%")
+        st.text(f"Weather: {weather_desc}")
+        st.text(f"Chemical Dosage: {random.randint(7, 12)} kg/day")
+        st.markdown('<div class="stGreenBox">Maintenance done 25 days ago. Next maintenance due in 35 days.</div></div>', unsafe_allow_html=True)
 
     with col3:
-        st.markdown(f'<div class="stBox stBorder"><h3>HydroFlow Unit</h3>', unsafe_allow_html=True)
-        st.text(f"Flow Rate: {data['HydroFlow Unit']['Flow Rate']}")
-        st.text(f"Temperature: {data['HydroFlow Unit']['Temperature']}")
-        st.text(f"Chemical Dosage: {data['HydroFlow Unit']['Chemical Dosage']}")
-        st.markdown(f'<div class="stGreenBox">Maintenance: {data["HydroFlow Unit"]["Maintenance"]}</div></div>', unsafe_allow_html=True)
+        st.markdown('<div class="stBox stBorder"><h3>HydroFlow Unit</h3>', unsafe_allow_html=True)
+        st.text(f"Flow Rate: {random.randint(380, 480)} Liters/day")
+        st.text(f"Temperature: {temp_c} °C (Real-time)")
+        st.text(f"Humidity: {humidity}%")
+        st.text(f"Weather: {weather_desc}")
+        st.text(f"Chemical Dosage: {random.randint(6, 14)} kg/day")
+        st.markdown('<div class="stGreenBox">Maintenance done 20 days ago. Next maintenance due in 30 days.</div></div>', unsafe_allow_html=True)
 
-# Refreshing the page every second without external packages
+# Periodic refresh loop
 while True:
-    display_filter_data()
-    time.sleep(1)  # Refresh every second
-    st.experimental_rerun()  # Re-run the app to refresh content
+    display_data()
+    time.sleep(10)  # Pause for 10 seconds before refreshing data
+    st.experimental_rerun()
