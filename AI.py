@@ -2,63 +2,57 @@ import subprocess
 import sys
 import streamlit as st
 import random
-import requests
-from streamlit_autorefresh import st_autorefresh
+import requests  # To fetch weather data
+from datetime import datetime
 
-# Function to check and install pip if not installed
+# Install pip if not already installed
 def install_pip():
     try:
-        __import__('pip')
-    except ImportError:
-        # Install pip if not present
         subprocess.check_call([sys.executable, "-m", "ensurepip", "--upgrade"])
+    except subprocess.CalledProcessError as e:
+        st.error("Failed to install pip automatically. Please install pip manually.")
+        return
 
-# Function to install required packages
+# Install any required packages
 def install_packages():
     required_packages = ['streamlit_autorefresh', 'requests']
     for package in required_packages:
         try:
-            __import__(package)
-        except ImportError:
             subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+        except subprocess.CalledProcessError:
+            st.error(f"Failed to install package {package}. Please try installing it manually.")
+            return
 
-# Install pip if not present
+# Run the installation functions
 install_pip()
-
-# Install required packages
 install_packages()
+
+# Import after installation (important to avoid issues)
+try:
+    from streamlit_autorefresh import st_autorefresh
+except ModuleNotFoundError:
+    st.error("streamlit_autorefresh is not installed. Please try installing it manually.")
+    st.stop()
 
 # Set up the page
 st.set_page_config(layout="wide")
 
-# Weather API configuration
-API_KEY = 'ec5dff3620be8d025f51f648826a4ada'  # Replace with your API key
-LOCATION = 'Thill Sharif, Pakistan'
-
-# Function to fetch weather data from the API
-def get_weather_data(api_key, location):
-    """Fetches weather data from the API for the given location."""
-    base_url = f"http://api.weatherstack.com/current?access_key={api_key}&query={location}"
-    response = requests.get(base_url)
-    
-    if response.status_code == 200:
+# Function to get weather data
+def get_weather_data(api_key, location="Lahore"):
+    url = f"http://api.weatherstack.com/current?access_key={api_key}&query={location}"
+    try:
+        response = requests.get(url)
         data = response.json()
-        if "current" in data:
-            return {
-                "temperature": data["current"]["temperature"],
-                "humidity": data["current"]["humidity"],
-                "wind_speed": data["current"]["wind_speed"],
-                "precipitation": data["current"]["precip"]
-            }
-        else:
-            st.error("Error retrieving weather data")
+        if "error" in data:
+            st.error(f"Error fetching weather data: {data['error']['info']}")
             return None
-    else:
-        st.error(f"Failed to fetch data: {response.status_code}")
+        return data
+    except Exception as e:
+        st.error(f"Error fetching weather data: {e}")
         return None
 
-# Fetch weather data
-weather_data = get_weather_data(API_KEY, LOCATION)
+# Get weather data from your API key
+weather_data = get_weather_data("ec5dff3620be8d025f51f648826a4ada")
 
 # Styling with a water theme
 st.markdown("""
@@ -75,13 +69,16 @@ st.markdown("""
 # Title with custom font
 st.markdown('<h1 class="stTitle">Water Filtration Plants PD Khan Thill Sharif</h1>', unsafe_allow_html=True)
 
-# Display Weather Information
+# Weather information (if fetched successfully)
 if weather_data:
-    st.markdown(f"### Current Weather in {LOCATION}")
-    st.text(f"Temperature: {weather_data['temperature']} °C")
-    st.text(f"Humidity: {weather_data['humidity']}%")
-    st.text(f"Wind Speed: {weather_data['wind_speed']} km/h")
-    st.text(f"Precipitation: {weather_data['precipitation']} mm")
+    location_name = weather_data['location']['name']
+    temperature = weather_data['current']['temperature']
+    humidity = weather_data['current']['humidity']
+    wind_speed = weather_data['current']['wind_speed']
+    st.markdown(f"### Weather Data for {location_name}:")
+    st.markdown(f"- **Temperature**: {temperature} °C")
+    st.markdown(f"- **Humidity**: {humidity}%")
+    st.markdown(f"- **Wind Speed**: {wind_speed} km/h")
 
 # Column layout for three filters with the refreshed content
 col1, col2, col3 = st.columns(3)
