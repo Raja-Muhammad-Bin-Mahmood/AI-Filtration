@@ -2,8 +2,8 @@ import subprocess
 import sys
 import streamlit as st
 import random
-from streamlit_autorefresh import st_autorefresh
 
+# Function to install missing packages
 def install_packages():
     required_packages = ['streamlit_autorefresh']
     for package in required_packages:
@@ -15,6 +15,13 @@ def install_packages():
 
 # Run the function to install necessary packages
 install_packages()
+
+# Attempt to import the autorefresh after installation
+try:
+    from streamlit_autorefresh import st_autorefresh
+except ImportError as e:
+    st.error("streamlit_autorefresh is not installed. Please restart the app or install the package manually.")
+    st.stop()  # Stop the app if package is missing
 
 # Set up the page
 st.set_page_config(layout="wide")
