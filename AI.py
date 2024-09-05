@@ -87,4 +87,4 @@ def display_data():
 # Main loop to update data every 10 seconds
 while True:
     display_data()
-    time.sleep(10)  # Sleep for 10 seconds between updates
+    time.sleep(1)  # Sleep for 10 seconds between updates
